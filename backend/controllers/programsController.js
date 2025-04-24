@@ -28,7 +28,9 @@ export const getSingleProgram = async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await connection.execute(
-      "SELECT * FROM programs WHERE program_id = ?",
+      `SELECT * 
+      FROM programs 
+      WHERE program_id = ?`,
       [id]
     );
     res.status(200).json({
@@ -37,6 +39,29 @@ export const getSingleProgram = async (req, res) => {
     });
   } catch (error) {
     console.log("Error fetching a program:", error);
+    res.status(500).json({
+      error: true,
+      message: "Something went wrong try again later.",
+    });
+  }
+};
+export const getClientsForProgram = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await connection.execute(
+      `SELECT c.name, c.email, c.gender,c.national_id, c.phone
+      FROM clients c 
+      JOIN clients_in_programs cip ON cip.client_id = c.client_id
+      JOIN programs p ON p.program_id = cip.program_id
+      WHERE p.program_id = ?`,
+      [id]
+    );
+    res.status(200).json({
+      data: rows,
+      message: "Program clients retrieved from database successfully.",
+    });
+  } catch (error) {
+    console.log("Error fetching a program clients:", error);
     res.status(500).json({
       error: true,
       message: "Something went wrong try again later.",

@@ -6,6 +6,7 @@ import {
   updateProgram,
   deleteProgram,
   searchProgram,
+  getClientsForProgram,
 } from "../controllers/programsController.js";
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
 router.get("/programs", getPrograms);
 router.get("/programs/:id", getSingleProgram);
 router.get("/programs/search", searchProgram);
+router.get("/programs/:id/users", getClientsForProgram);
 router.post("/programs", createProgram);
 router.put("/programs/:id", updateProgram);
 router.delete("/programs/:id", deleteProgram);
