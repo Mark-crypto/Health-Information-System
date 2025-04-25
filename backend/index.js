@@ -19,7 +19,7 @@ app.use(express.json());
 app.use("/api", appRoutes);
 
 //Public API
-app.get("/api/client/:id", limiter, getClientProfile);
+app.get("/api/clients/:id", limiter, getClientProfile);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port: ${PORT}`);

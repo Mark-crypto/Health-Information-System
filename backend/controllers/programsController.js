@@ -1,20 +1,26 @@
 import connection from "../database.js";
-//remember pagination and search
-export const getPrograms = async (req, res) => {
-  const { _limit } = req.query;
-  const { _page } = req.query;
 
-  const page = 1;
-  const limit = 10;
-  const offset = 0;
+export const getPrograms = async (req, res) => {
+  const pageNumber = parseInt(req.query._page) || 1;
+  const limit = parseInt(req.query._limit) || 10;
+  const offset = (pageNumber - 1) * limit;
+
+  const limitString = limit.toString();
+  const offsetString = offset.toString();
 
   try {
     const [rows] = await connection.execute(
-      "SELECT * FROM programs LIMIT 10",
-      []
+      "SELECT * FROM programs LIMIT ? OFFSET ?",
+      [limitString, offsetString]
     );
+    const [totalItems] = await connection.execute(
+      "SELECT COUNT(*) AS total FROM programs"
+    );
+    const total = totalItems[0].total;
+
     res.status(200).json({
       data: rows,
+      meta: { pageNumber, limit, totalPages: Math.ceil(total / limit), total },
       message: "Programs retrieved from database successfully.",
     });
   } catch (error) {
@@ -24,6 +30,7 @@ export const getPrograms = async (req, res) => {
       .json({ error: true, message: "Something went wrong try again later." });
   }
 };
+
 export const getSingleProgram = async (req, res) => {
   const { id } = req.params;
   try {
@@ -45,6 +52,7 @@ export const getSingleProgram = async (req, res) => {
     });
   }
 };
+
 export const getClientsForProgram = async (req, res) => {
   const { id } = req.params;
   try {
@@ -72,11 +80,11 @@ export const createProgram = async (req, res) => {
   const { name, case_manager, referral } = req.body;
   try {
     const response = await connection.execute(
-      "INSERT INTO programs SET name=? case_manager=? referral=?",
+      "INSERT INTO programs (name, case_manager, referral) VALUES(?,?,?) ",
       [name, case_manager, referral]
     );
     if (!response) {
-      res.status(500).json({
+      return res.status(500).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -95,11 +103,11 @@ export const updateProgram = async (req, res) => {
   const { id } = req.params;
   try {
     const response = await connection.execute(
-      "UPDATE programs SET name=? case_manager=? referral=? WHERE program_id=?",
+      "UPDATE programs SET name=?, case_manager=?, referral=? WHERE program_id=?",
       [name, case_manager, referral, id]
     );
     if (!response) {
-      res.status(500).json({
+      return res.status(500).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -117,7 +125,7 @@ export const deleteProgram = async (req, res) => {
   const { id } = req.params;
   try {
     const response = await connection.execute(
-      "DELETE FROM programs WHERE program_id=",
+      "DELETE FROM programs WHERE program_id=?",
       [id]
     );
     if (!response) {
@@ -136,6 +144,33 @@ export const deleteProgram = async (req, res) => {
   }
 };
 
-export const searchProgram = (req, res) => {
-  const { q } = req.query;
+export const searchProgram = async (req, res) => {
+  const searchQuery = req.query.q;
+  const { id } = req.params;
+  try {
+    if (!searchQuery)
+      return res.status(404).json({ message: "No input was passed" });
+    const [rows] = await connection.execute(
+      `WITH join_table AS(
+      SELECT c.name AS client_name, c.email, c.gender,c.national_id, c.phone
+      FROM clients c 
+      JOIN clients_in_programs cip ON cip.client_id = c.client_id
+      JOIN programs p ON p.program_id = cip.program_id
+      WHERE p.program_id = ?) 
+      SELECT * FROM join_table
+      WHERE MATCH(client_name) AGAINST(?) LIMIT 10
+      `,
+      [id, searchQuery]
+    );
+    console.log(rows);
+    res
+      .status(200)
+      .json({ data: rows, message: "Programs retrieved successfully." });
+  } catch (error) {
+    console.log("Error searching for programs: ", error);
+    res.status(500).json({
+      error: true,
+      message: "Something went wrong. Try again later.",
+    });
+  }
 };

@@ -13,7 +13,7 @@ export const login = async (req, res) => {
       [email]
     );
     if (!user) {
-      res.status(401).json({
+      return res.status(401).json({
         error: true,
         message: "Invalid email or password was provided.",
       });
@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     const hash = user[0].password;
     const doPasswordsMatch = await bcrypt.compare(password, hash);
     if (doPasswordsMatch === false) {
-      res.status(401).json({
+      return res.status(401).json({
         error: true,
         message: "Invalid email or password was provided.",
       });
@@ -30,7 +30,12 @@ export const login = async (req, res) => {
       expiresIn: "1h",
     });
     res.status(200).json({
-      data: user[0],
+      data: {
+        userId: user[0].id,
+        name: user[0].name,
+        email: user[0].email,
+        role: user[0].role,
+      },
       token,
       message: "You have logged in successfully.",
     });
@@ -44,22 +49,26 @@ export const login = async (req, res) => {
 };
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
-  const doesEmailExist = await connection.execute(
+  const [doesEmailExist] = await connection.execute(
     "SELECT * FROM users WHERE email =?",
     [email]
   );
-  if (doesEmailExist) {
-    res.status(404).json({ error: true, message: "Email is already in use." });
+  console.log(doesEmailExist);
+  if (doesEmailExist[0]) {
+    return res
+      .status(404)
+      .json({ error: true, message: "Email is already in use." });
   }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const response = await connection.execute(
-      "INSERT INTO users SET name=? email=? password=?",
+      `INSERT INTO users(name, email, password)
+       VALUES (?,?,?)`,
       [name, email, hashedPassword]
     );
     if (!response) {
-      res.status(500).json({
+      return res.status(500).json({
         error: true,
         message: "Something went wrong.Try again later.",
       });
@@ -95,7 +104,7 @@ export const requestAccess = async (req, res) => {
       [name, email, phone, reason]
     );
     if (!response) {
-      res.status(500).json({
+      return res.status(500).json({
         error: true,
         message: "Something went wrong.Try again later.",
       });

@@ -7,9 +7,11 @@ import {
   updateClient,
 } from "../controllers/clientsController.js";
 
+import { isAuthenticatedUser } from "../middlewares/isAuthenticatedUser.js";
+
 const router = Router();
 
-router.get("/clients", getClients);
+router.get("/clients", isAuthenticatedUser, getClients);
 router.get("/clients/search", searchClient);
 router.post("/clients", addClient);
 router.put("/clients/:id", updateClient);

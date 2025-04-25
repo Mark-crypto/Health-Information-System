@@ -1,6 +1,6 @@
 import connection from "../database.js";
 
-export const getReports = async () => {
+export const getReports = async (req, res) => {
   try {
     const [programData] = await connection.execute(
       `
@@ -12,14 +12,12 @@ export const getReports = async () => {
       `
     );
     const [clientData] = await connection.execute(
-      "SELECT COUNT(*) FROM clients"
+      "SELECT COUNT(*) AS total FROM clients"
     );
-    res
-      .status(200)
-      .json({
-        data: { programData, clientData },
-        message: "Reports retrieved successfully.",
-      });
+    res.status(200).json({
+      data: { programData, clientData },
+      message: "Reports retrieved successfully.",
+    });
   } catch (error) {
     console.log("Error fetching reports from database: ", error);
     res
