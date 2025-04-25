@@ -51,8 +51,7 @@ export const getClientProfile = async (req, res) => {
   }
 };
 export const addClient = async (req, res) => {
-  const { client, programId } = req.body;
-  const { name, email, phone, national_id, gender } = client;
+  const { name, email, phone, national_id, gender } = req.body;
   try {
     const [response] = await connection.execute(
       `INSERT INTO clients (name, email, phone, national_id, gender)
@@ -65,11 +64,6 @@ export const addClient = async (req, res) => {
         message: "Something went wrong try again later.",
       });
     }
-    const clientId = response.insertId;
-    await connection.execute(
-      "INSERT INTO clients_in_programs(client_id, program_id) VALUES (?,?)",
-      [clientId, programId]
-    );
     res.status(201).json({ message: "Client was added successfully." });
   } catch (error) {
     console.log("Error adding a client: ", error);

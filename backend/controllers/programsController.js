@@ -98,6 +98,31 @@ export const createProgram = async (req, res) => {
     });
   }
 };
+
+export const registerExistingClient = async (req, res) => {
+  const { id } = req.params;
+  const { clientId } = req.body;
+  try {
+    const response = await connection.execute(
+      "INSERT INTO clients_in_programs(client_id,program_id) VALUES(?,?)",
+      [clientId, id]
+    );
+    if (!response) {
+      return res.status(500).json({
+        error: true,
+        message: "Something went wrong try again later.",
+      });
+    }
+    res.status(201).json({ message: "Client registered successfully" });
+  } catch (error) {
+    console.log("Error adding client to program: ", error);
+    res.status(500).json({
+      error: true,
+      message: "Something went wrong try again later.",
+    });
+  }
+};
+
 export const updateProgram = async (req, res) => {
   const { name, case_manager, referral } = req.body;
   const { id } = req.params;
