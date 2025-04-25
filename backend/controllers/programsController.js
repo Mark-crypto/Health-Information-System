@@ -57,7 +57,7 @@ export const getClientsForProgram = async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await connection.execute(
-      `SELECT c.name, c.email, c.gender,c.national_id, c.phone
+      `SELECT c.client_id, c.name, c.email, c.gender,c.national_id, c.phone
       FROM clients c 
       JOIN clients_in_programs cip ON cip.client_id = c.client_id
       JOIN programs p ON p.program_id = cip.program_id

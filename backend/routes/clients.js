@@ -11,7 +11,7 @@ import { isAuthenticatedUser } from "../middlewares/isAuthenticatedUser.js";
 
 const router = Router();
 
-router.get("/clients", isAuthenticatedUser, getClients);
+router.get("/clients", getClients);
 router.get("/clients/search", searchClient);
 router.post("/clients", addClient);
 router.put("/clients/:id", updateClient);

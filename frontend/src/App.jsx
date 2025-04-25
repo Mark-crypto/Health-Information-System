@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import AddRegisteredClients from "./pages/AddRegisteredClients";
+import ClientProfile from "./pages/ClientProfile";
+import Clients from "./pages/Clients";
+import Home from "./pages/Home";
+import Programs from "./pages/Programs";
+import RegisterUsers from "./pages/RegisterUsers";
+import Reports from "./pages/Reports";
+import RequestAccess from "./pages/RequestAccess";
+import SingleProgram from "./pages/SingleProgram";
+import ViewRequestAccess from "./pages/ViewRequestAccess";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/regClient" element={<AddRegisteredClients />} />
+        <Route path="/clients/:id" element={<ClientProfile />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/programs" element={<Programs />} />
+        <Route path="/register" element={<RegisterUsers />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/reqAccess" element={<RequestAccess />} />
+        <Route path="/programs/:id" element={<SingleProgram />} />
+        <Route path="/viewReq" element={<ViewRequestAccess />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
