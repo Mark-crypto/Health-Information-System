@@ -26,8 +26,26 @@ export const login = async (req, res) => {
         message: "Invalid email or password was provided.",
       });
     }
-    const token = jwt.sign(user[0], process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    const accessToken = jwt.sign(
+      { name: user[0].name },
+      process.env.JWT_ACCESS_TOKEN,
+      {
+        expiresIn: "15m",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { name: user[0].name },
+      process.env.JWT_REFRESH_TOKEN,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.status(200).json({
       data: {
@@ -36,12 +54,11 @@ export const login = async (req, res) => {
         email: user[0].email,
         role: user[0].role,
       },
-      token,
       message: "You have logged in successfully.",
     });
   } catch (error) {
     console.log("An error logging in: ", error);
-    res.status(500).json({
+    res.status(401).json({
       error: true,
       message: "Something went wrong.Try again later.",
     });
@@ -82,6 +99,48 @@ export const register = async (req, res) => {
     });
   }
 };
+
+export const refreshToken = (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  try {
+    if (!refreshToken) {
+      res
+        .status(401)
+        .json({ error: true, message: "Access denied. Login to access" });
+    }
+    const decodedToken = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_TOKEN
+    );
+    if (!decodedToken) {
+      res
+        .status(401)
+        .json({ error: true, message: "Access denied. Login to access" });
+    }
+    const newAccessToken = jwt.sign(
+      { name: decodedToken.name },
+      process.env.JWT_ACCESS_TOKEN,
+      { expiresIn: "15m" }
+    );
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      maxAge: 15 * 60 * 60 * 1000,
+    });
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    console.log("An error refreshing token:", error);
+    res
+      .status(401)
+      .json({ error: true, message: "Access denied. Login to access" });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.status(200).json({ message: "Logout successful" });
+};
+
 export const getAccessList = async (req, res) => {
   try {
     const [rows] = await connection.execute("SELECT * FROM request_access");

@@ -1,10 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 dotenv.config();
 import { getClientProfile } from "./controllers/clientsController.js";
+import { login, refreshToken } from "./controllers/authController.js";
 import appRoutes from "./routes/index.route.js";
+import { isAuthenticatedUser } from "./middlewares/isAuthenticatedUser.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,12 +17,20 @@ const limiter = rateLimit({
   message: "Too many requests from this IP. Please try again later.",
 });
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
-app.use("/api", appRoutes);
 
-//Public API
+//Public routes
 app.get("/api/clients/:id", limiter, getClientProfile);
+app.post("/api/refresh", refreshToken);
+app.post("/api/login", login);
+
+app.use("/api", isAuthenticatedUser, appRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port: ${PORT}`);

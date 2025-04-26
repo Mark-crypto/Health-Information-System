@@ -25,6 +25,7 @@ const Clients = () => {
   return (
     <>
       <Navbar />
+      <h3>Search for clients</h3>
       <button>Explore Programs</button>
       <button>Add a client</button>
       <h4>Search for clients</h4>

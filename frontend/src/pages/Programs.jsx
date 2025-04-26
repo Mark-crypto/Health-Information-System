@@ -24,6 +24,7 @@ const Programs = () => {
   return (
     <>
       <Navbar />
+      <h3>Search for programs</h3>
       <button>Add Programs</button>
       <div>
         {programData?.data?.data?.map((program) => {

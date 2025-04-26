@@ -4,8 +4,7 @@ dotenv.config();
 
 export const isAuthenticatedUser = (req, res, next) => {
   try {
-    const headers = req.headers["authorization"];
-    const authToken = headers && headers.split(" ")[1];
+    const authToken = req.cookies.accessToken;
 
     if (!authToken) {
       return res.status(401).json({
@@ -13,14 +12,13 @@ export const isAuthenticatedUser = (req, res, next) => {
         message: "Access denied. Login to access.",
       });
     }
-    const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(authToken, process.env.JWT_ACCESS_TOKEN);
     if (!decodedToken) {
       return res.status(401).json({
         error: true,
         message: "Access denied. Login to access.",
       });
     }
-    req.userInfo = decodedToken;
     next();
   } catch (error) {
     console.log("Error authenticating a user:", error);
