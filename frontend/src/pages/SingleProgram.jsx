@@ -7,33 +7,26 @@ import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
+import Loading from "../components/Loading";
 
 const SingleProgram = () => {
   const { id } = useParams();
   const queryClient = useQueryClient();
-  const {
-    data: clientData,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: clientData, isLoading } = useQuery({
     queryKey: ["clientInProgram"],
-    queryFn: () => {
-      return axiosInstance.get(`/programs/${id}/users`);
+    queryFn: async () => {
+      return await axiosInstance.get(`/programs/${id}/users`);
     },
   });
 
-  const {
-    mutate,
-    isPending,
-    error: mutateError,
-  } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
       const userId = data.clientId;
       return await axiosInstance.delete(`/programs/${id}/users/${userId}`);
     },
     onSuccess: (data) => {
-      toast.success(data.data.message);
       queryClient.invalidateQueries({ queryKey: ["clientInProgram"] });
+      toast.success(data.data.message);
     },
     onError: () => {
       toast.error("Something went wrong.");
@@ -47,11 +40,9 @@ const SingleProgram = () => {
     }
   };
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <Loading />;
   }
-  if (error || mutateError) {
-    return <h1>An error occurred</h1>;
-  }
+
   return (
     <>
       <Navbar />

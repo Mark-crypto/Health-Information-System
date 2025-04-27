@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
 import Navbar from "../components/Navbar";
 import axiosInstance from "../axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const schema = z
   .object({
@@ -25,13 +26,15 @@ const schema = z
   });
 
 const RegisterUsers = () => {
-  const { mutate, isPending, error } = useMutation({
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
       return await axiosInstance.post("/register", data);
     },
-    onSuccess: (data) => {
-      toast.success(data.data.message);
+    onSuccess: () => {
       reset();
+      navigate("/home");
     },
     onError: () => {
       toast.error("Something went wrong");
@@ -54,10 +57,7 @@ const RegisterUsers = () => {
       toast.error("Something went wrong");
     }
   };
-  if (error) {
-    console.log(error);
-    return <h4>Something went wrong</h4>;
-  }
+
   return (
     <>
       <Navbar />

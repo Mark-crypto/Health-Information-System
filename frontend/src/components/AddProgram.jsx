@@ -21,12 +21,11 @@ const AddProgram = () => {
 
   const queryClient = useQueryClient();
 
-  const { mutate, error, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
       return await axiosInstance.post("/programs", data);
     },
     onSuccess: (data) => {
-      toast.success(data.data.message);
       reset();
       setShowAdd(false);
       queryClient.invalidateQueries({ queryKey: ["programs"] });
@@ -50,9 +49,7 @@ const AddProgram = () => {
       toast.error("Something went wrong.");
     }
   };
-  if (error) {
-    return <h3>Something went wrong</h3>;
-  }
+
   return (
     <>
       <ToastContainer />

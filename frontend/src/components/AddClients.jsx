@@ -31,10 +31,12 @@ const AddClients = () => {
     mutationFn: async (data) => {
       return await axiosInstance.post("/clients", data);
     },
-    onSuccess: (data) => {
-      toast.success(data.data.message);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setShow(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong");
     },
   });
 
@@ -48,15 +50,12 @@ const AddClients = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
     mode: "onBlur",
   });
-  if (error) {
-    return <h4>Something went wrong</h4>;
-  }
+
   return (
     <>
       <Button variant="success" onClick={handleShow}>

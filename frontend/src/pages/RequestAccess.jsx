@@ -6,8 +6,8 @@ import { useMutation } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
 import axiosInstance from "../axiosInstance";
 import { useNavigate } from "react-router-dom";
-import ErrorPage from "../components/ErrorPage";
 
+//Validations schema
 const schema = z.object({
   name: z.string().min(1, "Enter a valid name"),
   email: z.string().email("Provide a valid email"),
@@ -20,10 +20,9 @@ const schema = z.object({
 
 const RequestAccess = () => {
   const navigate = useNavigate();
-
   const { mutate, isPending, error } = useMutation({
-    mutationFn: (data) => {
-      return axiosInstance.post("/request-access", data);
+    mutationFn: async (data) => {
+      return await axiosInstance.post("/request-access", data);
     },
     onSuccess: (data) => {
       toast.success(data.data.message);
@@ -46,6 +45,7 @@ const RequestAccess = () => {
     resolver: zodResolver(schema),
     mode: "onBlur",
   });
+
   const submitForm = (data) => {
     try {
       mutate(data);
@@ -54,7 +54,7 @@ const RequestAccess = () => {
     }
   };
   if (error) {
-    return <ErrorPage />;
+    toast.error(error.message);
   }
   return (
     <>

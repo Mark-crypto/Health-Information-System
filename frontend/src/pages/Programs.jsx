@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import Loading from "../components/Loading";
-import ErrorPage from "../components/ErrorPage";
 import AddProgram from "../components/AddProgram";
 import DeleteProgram from "../components/DeleteProgram";
 import { ToastContainer } from "react-toastify";
@@ -15,8 +14,8 @@ const Programs = () => {
     error,
   } = useQuery({
     queryKey: ["programs"],
-    queryFn: () => {
-      return axiosInstance.get("/programs");
+    queryFn: async () => {
+      return await axiosInstance.get("/programs");
     },
   });
 
@@ -24,7 +23,7 @@ const Programs = () => {
     return <Loading />;
   }
   if (error) {
-    return <ErrorPage />;
+    toast.error("Something went wrong.");
   }
 
   return (

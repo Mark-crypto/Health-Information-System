@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Table from "react-bootstrap/Table";
 import axiosInstance from "../axiosInstance";
+import Loading from "../components/Loading";
+import { toast, ToastContainer } from "react-toastify";
 
 const ViewRequestAccess = () => {
   const {
@@ -10,19 +12,20 @@ const ViewRequestAccess = () => {
     error,
   } = useQuery({
     queryKey: ["requestAccess"],
-    queryFn: () => {
-      return axiosInstance.get("/request-access");
+    queryFn: async () => {
+      return await axiosInstance.get("/request-access");
     },
   });
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <Loading />;
   }
   if (error) {
-    return <h1>An error occurred</h1>;
+    toast.error("Something went wrong");
   }
   return (
     <>
       <Navbar />
+      <ToastContainer />
       <Table striped bordered hover style={{ marginTop: "60px" }}>
         <thead>
           <tr>

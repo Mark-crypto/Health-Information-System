@@ -60,7 +60,7 @@ export const addClient = async (req, res) => {
       [name, email, phone, nationalID, gender]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -83,12 +83,12 @@ export const updateClient = async (req, res) => {
       [name, email, phone, national_id, gender, id]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
     }
-    res.status(201).json({ message: "Client was updated successfully." });
+    res.status(200).json({ message: "Client was updated successfully." });
   } catch (error) {
     console.log("Error updating a client: ", error);
     res.status(500).json({
@@ -105,12 +105,12 @@ export const deleteClient = async (req, res) => {
       [id]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
     }
-    res.status(201).json({ message: "Client was deleted successfully." });
+    res.status(200).json({ message: "Client was deleted successfully." });
   } catch (error) {
     console.log("Error deleting a client: ", error);
     res.status(500).json({
@@ -122,22 +122,23 @@ export const deleteClient = async (req, res) => {
 
 export const searchClient = async (req, res) => {
   const searchQuery = req.query.q;
+  console.log(searchQuery);
+  if (!searchQuery) {
+    return res.status(400).json({ message: "No input was provided" });
+  }
   try {
-    if (!searchQuery)
-      return res.status(404).json({ message: "No input was passed" });
-
     const [rows] = await connection.execute(
-      "SELECT * FROM clients WHERE name LIKE ? LIMIT 10",
+      "SELECT * FROM clients WHERE name LIKE ? ",
       [`%${searchQuery}%`]
     );
-    console.log(rows);
+    if (rows.length === 0) {
+      return res.status(200).json({ message: "No user with that name exists" });
+    }
     res
       .status(200)
       .json({ data: rows, message: "Clients retrieved successfully" });
   } catch (error) {
-    console.log("Error searching for clients:", error);
-    res
-      .status(500)
-      .json({ error: true, message: "Something went wrong. Try again later" });
+    console.log("An error while searching", error);
+    res.status(500).json({ message: "Something went wrong", error: true });
   }
 };

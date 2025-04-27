@@ -4,10 +4,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance.js";
-import ErrorPage from "../components/ErrorPage.jsx";
 
 const schema = z.object({
   email: z.string().email("Provide a valid email"),
@@ -24,8 +22,8 @@ const Login = () => {
       reset();
       navigate("/home");
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error("Invalid username or password");
     },
   });
 
@@ -46,9 +44,6 @@ const Login = () => {
     }
   };
 
-  if (error) {
-    return <ErrorPage />;
-  }
   return (
     <>
       <ToastContainer />

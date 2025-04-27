@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
@@ -8,20 +8,22 @@ import { Search } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import UpdateClients from "../components/UpdateClients";
 import DeleteClients from "../components/DeleteClients";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import debounce from "lodash/debounce";
+import Loading from "../components/Loading";
 
 const Clients = () => {
   const [query, setQuery] = useState("");
-
+  const [page, setPage] = useState(1);
   const {
     data: clientsData,
     isLoading,
     error,
     refetch: refetchAll,
   } = useQuery({
-    queryKey: ["clients"],
+    queryKey: ["clients", page],
     queryFn: async () => {
-      return await axiosInstance.get("/clients");
+      return await axiosInstance.get(`/clients?_limit=10&_page=${page}`);
     },
   });
 
@@ -33,10 +35,29 @@ const Clients = () => {
   } = useQuery({
     queryKey: ["searchClient", query],
     queryFn: async () => {
-      return await axiosInstance.get(`clients/search?q=${query}`);
+      return await axiosInstance.get(`/search?q=${query}`);
     },
     enabled: false,
   });
+
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.trim() === "") {
+          refetchAll();
+        } else {
+          refetchSearch();
+        }
+      }, 300),
+    [refetchAll, refetchSearch]
+  );
+
+  useEffect(() => {
+    debouncedSearch(query);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [query, debouncedSearch]);
 
   const handleSearch = () => {
     try {
@@ -50,12 +71,12 @@ const Clients = () => {
     }
   };
   const displayData = query.trim() === "" ? clientsData : searchData;
-  console.log(displayData);
+
   if (isLoading || searchLoading) {
-    return <h1>Loading...</h1>;
+    return <Loading />;
   }
   if (error || searchError) {
-    return <h1>An error occurred</h1>;
+    toast.error("Something went wrong.");
   }
   return (
     <>
@@ -104,7 +125,7 @@ const Clients = () => {
                 <td>{client.national_id}</td>
                 <td>{client.phone}</td>
                 <td>
-                  <UpdateClients />{" "}
+                  <UpdateClients id={client.client_id} />{" "}
                   <span style={{ marginRight: "10px" }}></span>
                   <DeleteClients id={client.client_id} name={client.name} />
                 </td>
@@ -121,6 +142,23 @@ const Clients = () => {
           })}
         </tbody>
       </Table>
+      <div className="navigation-pages">
+        <button
+          onClick={() => setPage((prev) => prev - 1)}
+          disabled={page <= 0}
+        >
+          Previous Page
+        </button>
+        <div className="current-page">
+          Page {page} of {clientsData.data.meta.totalPages}
+        </div>
+        <button
+          onClick={() => setPage((prev) => prev + 1)}
+          disabled={page >= clientsData.data.meta.totalPages}
+        >
+          Next Page
+        </button>
+      </div>
     </>
   );
 };

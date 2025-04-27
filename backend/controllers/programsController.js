@@ -84,7 +84,7 @@ export const createProgram = async (req, res) => {
       [name, case_manager, referral]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -108,7 +108,7 @@ export const registerExistingClient = async (req, res) => {
       [clientId, id]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -132,12 +132,12 @@ export const updateProgram = async (req, res) => {
       [name, case_manager, referral, id]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
     }
-    res.status(201).json({ message: "Program was updated successfully." });
+    res.status(200).json({ message: "Program was updated successfully." });
   } catch (error) {
     console.log("Error updating a program: ", error);
     res.status(500).json({
@@ -154,7 +154,7 @@ export const deleteProgram = async (req, res) => {
       [id]
     );
     if (!response) {
-      res.status(500).json({
+      res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -179,7 +179,7 @@ export const deleteClientInProgram = async (req, res) => {
       [clientId, programId]
     );
     if (!response) {
-      res.status(500).json({
+      res.status(400).json({
         error: true,
         message: "Something went wrong try again later.",
       });
@@ -200,7 +200,7 @@ export const searchClientsInProgram = async (req, res) => {
   const { id } = req.params;
   try {
     if (!searchQuery)
-      return res.status(404).json({ message: "No input was passed" });
+      return res.status(400).json({ message: "No input was passed" });
     const [rows] = await connection.execute(
       `WITH join_table AS(
       SELECT c.name AS client_name, c.email, c.gender,c.national_id, c.phone

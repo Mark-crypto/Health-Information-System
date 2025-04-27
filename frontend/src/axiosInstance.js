@@ -12,8 +12,17 @@ axios.interceptors.response.use(
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      await axiosInstance.post("/refresh");
-      return axiosInstance(originalRequest);
+      try {
+        await axios.post(
+          "http://localhost:5000/api/refresh",
+          {},
+          { withCredentials: true }
+        );
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        window.location.href = "/401";
+        return Promise.reject(refreshError);
+      }
     }
     return Promise.reject(error);
   }

@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.get("/clients", getClients);
-router.get("/clients/search", searchClient);
+router.get("/search", searchClient);
 router.post("/clients", addClient);
 router.put("/clients/:id", updateClient);
 router.delete("/clients/:id", deleteClient);

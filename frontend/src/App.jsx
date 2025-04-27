@@ -1,4 +1,3 @@
-import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import AddRegisteredClients from "./pages/AddRegisteredClients";
@@ -12,6 +11,8 @@ import RequestAccess from "./pages/RequestAccess";
 import SingleProgram from "./pages/SingleProgram";
 import ViewRequestAccess from "./pages/ViewRequestAccess";
 import ErrorPage from "./components/ErrorPage";
+import Unauthorized from "./components/Unauthorized";
+import SilentRefresh from "./AuthProvider";
 
 function App() {
   return (
@@ -31,8 +32,10 @@ function App() {
         <Route path="/reqAccess" element={<RequestAccess />} />
         <Route path="/programs/:id" element={<SingleProgram />} />
         <Route path="/viewReq" element={<ViewRequestAccess />} />
+        <Route path="/401" element={<Unauthorized />} />
         <Route path="/*" element={<ErrorPage />} />
       </Routes>
+      <SilentRefresh />
     </>
   );
 }

@@ -5,27 +5,20 @@ import Button from "react-bootstrap/Button";
 import axiosInstance from "../axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
+import Loading from "../components/Loading";
 
 const AddRegisteredClients = () => {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const {
-    data: clientsData,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: clientsData, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
       return await axiosInstance.get("/clients");
     },
   });
 
-  const {
-    mutate,
-    isPending,
-    error: mutateError,
-  } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
       return await axiosInstance.post(`/programs/${id}/users`, data);
     },
@@ -33,25 +26,28 @@ const AddRegisteredClients = () => {
       queryClient.invalidateQueries({ queryKey: ["clientInProgram"] });
       navigate(`/programs/${id}`);
     },
+    onError: () => {
+      toast.error("Something went wrong.");
+    },
   });
 
   const handleRegister = (data) => {
     try {
       mutate(data);
-    } catch (error) {}
+    } catch (error) {
+      toast.error("Something went wrong.");
+    }
   };
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <Loading />;
   }
-  if (error || mutateError) {
-    return <h1>An error occurred</h1>;
-  }
+
   return (
     <>
       <ToastContainer />
       <Navbar />
-      <h4>Search for clients</h4>
-      <Table striped bordered hover>
+
+      <Table striped bordered hover style={{ marginTop: "60px" }}>
         <thead>
           <tr>
             <th>Full Name</th>

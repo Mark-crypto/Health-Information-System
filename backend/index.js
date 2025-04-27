@@ -29,7 +29,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-
 //Public routes
 app.post("/api/request-access", requestAccess);
 app.get("/api/clients/:id", limiter, getClientProfile);

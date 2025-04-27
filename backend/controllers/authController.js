@@ -13,7 +13,7 @@ export const login = async (req, res) => {
       [email]
     );
     if (!user) {
-      return res.status(401).json({
+      return res.status(400).json({
         error: true,
         message: "Invalid email or password was provided.",
       });
@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     const hash = user[0].password;
     const doPasswordsMatch = await bcrypt.compare(password, hash);
     if (doPasswordsMatch === false) {
-      return res.status(401).json({
+      return res.status(400).json({
         error: true,
         message: "Invalid email or password was provided.",
       });
@@ -30,7 +30,7 @@ export const login = async (req, res) => {
       { name: user[0].name },
       process.env.JWT_ACCESS_TOKEN,
       {
-        expiresIn: "1h",
+        expiresIn: "20m",
       }
     );
     const refreshToken = jwt.sign(
@@ -41,7 +41,7 @@ export const login = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      maxAge: 60 * 60 * 1000,
+      maxAge: 20 * 60 * 1000,
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -58,7 +58,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log("An error logging in: ", error);
-    res.status(401).json({
+    res.status(500).json({
       error: true,
       message: "Something went wrong.Try again later.",
     });
@@ -73,7 +73,7 @@ export const register = async (req, res) => {
   console.log(doesEmailExist);
   if (doesEmailExist[0]) {
     return res
-      .status(404)
+      .status(400)
       .json({ error: true, message: "Email is already in use." });
   }
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -120,11 +120,11 @@ export const refreshToken = (req, res) => {
     const newAccessToken = jwt.sign(
       { name: decodedToken.name },
       process.env.JWT_ACCESS_TOKEN,
-      { expiresIn: "15m" }
+      { expiresIn: "20m" }
     );
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      maxAge: 15 * 60 * 60 * 1000,
+      maxAge: 20 * 60 * 60 * 1000,
     });
     res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
@@ -163,7 +163,7 @@ export const requestAccess = async (req, res) => {
       [name, email, phone, reason]
     );
     if (!response) {
-      return res.status(500).json({
+      return res.status(400).json({
         error: true,
         message: "Something went wrong.Try again later.",
       });

@@ -25,7 +25,6 @@ const ClientProfile = () => {
 
   return (
     <>
-      <Navbar />
       <div className="profile-card">
         <div className="profile-icon">
           <User size={80} color="#4caf50" strokeWidth={1.5} />
