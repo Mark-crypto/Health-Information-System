@@ -7,8 +7,6 @@ import {
   updateClient,
 } from "../controllers/clientsController.js";
 
-import { isAuthenticatedUser } from "../middlewares/isAuthenticatedUser.js";
-
 const router = Router();
 
 router.get("/clients", getClients);

@@ -1,6 +1,7 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
+import BarGraph from "../components/BarGraph";
+import axiosInstance from "../axiosInstance";
 
 const Reports = () => {
   const {
@@ -10,7 +11,7 @@ const Reports = () => {
   } = useQuery({
     queryKey: ["reports"],
     queryFn: () => {
-      return axios.get("http://localhost:5000/api/reports");
+      return axiosInstance.get("/reports");
     },
   });
   if (isLoading) {
@@ -23,25 +24,20 @@ const Reports = () => {
   return (
     <>
       <Navbar />
-      <div>
-        <div>
-          <h4>Programs:{reports.data.data.programData[0].total}</h4>
+      <div className="report-page">
+        <div className="report-cards">
+          <div className="report-card">
+            <h4>Active Programs</h4>
+            <p>{reports.data.data.programData[0].total}</p>
+          </div>
+          <div className="report-card">
+            <h4>Total Clients</h4>
+            <p>{reports.data.data.clientData[0].total}</p>
+          </div>
         </div>
-        <div>
-          <h4>HIV programs:{reports.data.data.programData[0].hiv_count}</h4>
-        </div>
-        <div>
-          <h4>
-            Malaria programs:{reports.data.data.programData[0].malaria_count}
-          </h4>
-        </div>
-        <div>
-          <h4>
-            Tuberculosis programs:{reports.data.data.programData[0].tb_count}
-          </h4>
-        </div>
-        <div>
-          <h4>Total clients:{reports.data.data.clientData[0].total}</h4>
+
+        <div className="bar-graph">
+          <BarGraph barData={reports.data.data} />
         </div>
       </div>
     </>

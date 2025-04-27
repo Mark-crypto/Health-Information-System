@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Table from "react-bootstrap/Table";
+import axiosInstance from "../axiosInstance";
 
 const ViewRequestAccess = () => {
   const {
@@ -11,7 +11,7 @@ const ViewRequestAccess = () => {
   } = useQuery({
     queryKey: ["requestAccess"],
     queryFn: () => {
-      return axios.get("http://localhost:5000/api/request-access");
+      return axiosInstance.get("/request-access");
     },
   });
   if (isLoading) {
@@ -23,7 +23,7 @@ const ViewRequestAccess = () => {
   return (
     <>
       <Navbar />
-      <Table striped bordered hover>
+      <Table striped bordered hover style={{ marginTop: "60px" }}>
         <thead>
           <tr>
             <th>Fullname</th>

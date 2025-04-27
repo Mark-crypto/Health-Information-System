@@ -30,7 +30,7 @@ export const login = async (req, res) => {
       { name: user[0].name },
       process.env.JWT_ACCESS_TOKEN,
       {
-        expiresIn: "15m",
+        expiresIn: "1h",
       }
     );
     const refreshToken = jwt.sign(
@@ -41,7 +41,7 @@ export const login = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      maxAge: 15 * 60 * 1000,
+      maxAge: 60 * 60 * 1000,
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -159,7 +159,7 @@ export const requestAccess = async (req, res) => {
   const { name, email, phone, reason } = req.body;
   try {
     const response = await connection.execute(
-      "INSERT INTO request_access SET name=? email=? phone=? reason=? ",
+      "INSERT INTO request_access(name, email, phone, reason) VALUES(?,?,?,?) ",
       [name, email, phone, reason]
     );
     if (!response) {

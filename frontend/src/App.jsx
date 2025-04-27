@@ -11,13 +11,17 @@ import Reports from "./pages/Reports";
 import RequestAccess from "./pages/RequestAccess";
 import SingleProgram from "./pages/SingleProgram";
 import ViewRequestAccess from "./pages/ViewRequestAccess";
+import ErrorPage from "./components/ErrorPage";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/regClient" element={<AddRegisteredClients />} />
+        <Route
+          path="/programs/:id/register"
+          element={<AddRegisteredClients />}
+        />
         <Route path="/clients/:id" element={<ClientProfile />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/home" element={<Home />} />
@@ -27,6 +31,7 @@ function App() {
         <Route path="/reqAccess" element={<RequestAccess />} />
         <Route path="/programs/:id" element={<SingleProgram />} />
         <Route path="/viewReq" element={<ViewRequestAccess />} />
+        <Route path="/*" element={<ErrorPage />} />
       </Routes>
     </>
   );

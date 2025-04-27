@@ -1,7 +1,8 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import { useParams } from "react-router-dom";
+import { User } from "lucide-react";
+import axiosInstance from "../axiosInstance";
 
 const ClientProfile = () => {
   const { id } = useParams();
@@ -11,8 +12,8 @@ const ClientProfile = () => {
     error,
   } = useQuery({
     queryKey: ["profile"],
-    queryFn: () => {
-      return axios.get(`http://localhost:5000/api/clients/${id}`);
+    queryFn: async () => {
+      return await axiosInstance.get(`/clients/${id}`);
     },
   });
   if (isLoading) {
@@ -25,12 +26,25 @@ const ClientProfile = () => {
   return (
     <>
       <Navbar />
-      <div>
-        <h4>Welcome, {profileData.data.data.name}</h4>
-        <h4>Email:{profileData.data.data.email}</h4>
-        <h4>Gender:{profileData.data.data.gender}</h4>
-        <h4>Number:{profileData.data.data.phone}</h4>
-        <h4>Status:{profileData.data.data.status}</h4>
+      <div className="profile-card">
+        <div className="profile-icon">
+          <User size={80} color="#4caf50" strokeWidth={1.5} />
+        </div>
+        <div className="profile-details">
+          <h2>Welcome, {profileData.data.data.name}</h2>
+          <p>
+            <strong>Email:</strong> {profileData.data.data.email}
+          </p>
+          <p>
+            <strong>Gender:</strong> {profileData.data.data.gender}
+          </p>
+          <p>
+            <strong>Phone:</strong> {profileData.data.data.phone}
+          </p>
+          <p>
+            <strong>Status:</strong> {profileData.data.data.status}
+          </p>
+        </div>
       </div>
     </>
   );

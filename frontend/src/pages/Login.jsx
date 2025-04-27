@@ -1,13 +1,13 @@
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../axiosInstance.js";
+import ErrorPage from "../components/ErrorPage.jsx";
 
 const schema = z.object({
   email: z.string().email("Provide a valid email"),
@@ -15,18 +15,17 @@ const schema = z.object({
 });
 
 const Login = () => {
-  const [response, setResponse] = useState({});
+  const navigate = useNavigate();
   const { mutate, error, isPending } = useMutation({
     mutationFn: (data) => {
-      return axios.post("http://localhost:5000/api/login", data);
+      return axiosInstance.post("/login", data);
     },
-    onSuccess: (data) => {
-      setResponse(data);
-      toast.success("Logged in successfully");
+    onSuccess: () => {
       reset();
+      navigate("/home");
     },
     onError: (error) => {
-      toast.error("Something went wrong");
+      toast.error(error.message);
     },
   });
 
@@ -48,42 +47,44 @@ const Login = () => {
   };
 
   if (error) {
-    return <h4>An error occurred</h4>;
+    return <ErrorPage />;
   }
   return (
     <>
       <ToastContainer />
-      <Form onSubmit={handleSubmit(submitForm)}>
-        <Form.Group className="mb-3">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
-            {...register("email")}
-            type="email"
-            placeholder="Enter email"
-          />
-          {errors.email && (
-            <p style={{ color: "red" }}>{errors.email.message} </p>
-          )}
-        </Form.Group>
+      <div className="login">
+        <Form onSubmit={handleSubmit(submitForm)}>
+          <Form.Group className="mb-3">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              {...register("email")}
+              type="email"
+              placeholder="Enter email"
+            />
+            {errors.email && (
+              <p style={{ color: "red" }}>{errors.email.message} </p>
+            )}
+          </Form.Group>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            {...register("password")}
-            type="password"
-            placeholder="Password"
-          />
-          {errors.password && (
-            <p style={{ color: "red" }}>{errors.password.message}</p>
-          )}
-        </Form.Group>
-        <Button variant="primary" type="submit" disabled={isPending}>
-          {isPending ? "Submitting..." : "Submit"}
-        </Button>
-      </Form>
-      <Link to="/reqAccess">
-        <h1>Request System Access</h1>
-      </Link>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              {...register("password")}
+              type="password"
+              placeholder="Password"
+            />
+            {errors.password && (
+              <p style={{ color: "red" }}>{errors.password.message}</p>
+            )}
+          </Form.Group>
+          <button type="submit" disabled={isPending}>
+            {isPending ? "Submitting..." : "Submit"}
+          </button>
+        </Form>
+        <Link to="/reqAccess">
+          <h1>Request System Access</h1>
+        </Link>
+      </div>
     </>
   );
 };

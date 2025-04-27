@@ -52,11 +52,12 @@ export const getClientProfile = async (req, res) => {
 };
 export const addClient = async (req, res) => {
   const { name, email, phone, national_id, gender } = req.body;
+  const nationalID = parseInt(national_id);
   try {
     const [response] = await connection.execute(
       `INSERT INTO clients (name, email, phone, national_id, gender)
       VALUES(?,?,?,?,?)`,
-      [name, email, phone, national_id, gender]
+      [name, email, phone, nationalID, gender]
     );
     if (!response) {
       return res.status(500).json({
@@ -126,9 +127,10 @@ export const searchClient = async (req, res) => {
       return res.status(404).json({ message: "No input was passed" });
 
     const [rows] = await connection.execute(
-      "SELECT * FROM clients WHERE MATCH(name) AGAINST(?) LIMIT 10",
-      [searchQuery]
+      "SELECT * FROM clients WHERE name LIKE ? LIMIT 10",
+      [`%${searchQuery}%`]
     );
+    console.log(rows);
     res
       .status(200)
       .json({ data: rows, message: "Clients retrieved successfully" });

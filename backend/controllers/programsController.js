@@ -159,7 +159,7 @@ export const deleteProgram = async (req, res) => {
         message: "Something went wrong try again later.",
       });
     }
-    res.status(201).json({ message: "Program was deleted successfully." });
+    res.status(200).json({ message: "Program was deleted successfully." });
   } catch (error) {
     console.log("Error deleting a program: ", error);
     res.status(500).json({
@@ -169,7 +169,33 @@ export const deleteProgram = async (req, res) => {
   }
 };
 
-export const searchProgram = async (req, res) => {
+export const deleteClientInProgram = async (req, res) => {
+  const clientId = req.params.clientId;
+  const programId = req.params.id;
+
+  try {
+    const response = await connection.execute(
+      "DELETE FROM clients_in_programs WHERE client_id = ? AND program_id = ?",
+      [clientId, programId]
+    );
+    if (!response) {
+      res.status(500).json({
+        error: true,
+        message: "Something went wrong try again later.",
+      });
+    }
+    res
+      .status(200)
+      .json({ message: "Client was removed from program successfully." });
+  } catch (error) {
+    console.log("Error deleting a program client: ", error);
+    res.status(500).json({
+      error: true,
+      message: "Something went wrong try again later.",
+    });
+  }
+};
+export const searchClientsInProgram = async (req, res) => {
   const searchQuery = req.query.q;
   const { id } = req.params;
   try {
@@ -187,7 +213,6 @@ export const searchProgram = async (req, res) => {
       `,
       [id, searchQuery]
     );
-    console.log(rows);
     res
       .status(200)
       .json({ data: rows, message: "Programs retrieved successfully." });

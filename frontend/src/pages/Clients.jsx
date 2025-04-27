@@ -1,34 +1,87 @@
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
-import Button from "react-bootstrap/Button";
+import axiosInstance from "../axiosInstance";
+import AddClients from "../components/AddClients";
+import { Search } from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import UpdateClients from "../components/UpdateClients";
+import DeleteClients from "../components/DeleteClients";
+import { useState } from "react";
 
 const Clients = () => {
+  const [query, setQuery] = useState("");
+
   const {
     data: clientsData,
     isLoading,
     error,
+    refetch: refetchAll,
   } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => {
-      return axios.get("http://localhost:5000/api/clients");
+    queryFn: async () => {
+      return await axiosInstance.get("/clients");
     },
   });
-  if (isLoading) {
+
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    error: searchError,
+    refetch: refetchSearch,
+  } = useQuery({
+    queryKey: ["searchClient", query],
+    queryFn: async () => {
+      return await axiosInstance.get(`clients/search?q=${query}`);
+    },
+    enabled: false,
+  });
+
+  const handleSearch = () => {
+    try {
+      if (query.trim === "") {
+        refetchAll();
+      } else {
+        refetchSearch();
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+  const displayData = query.trim() === "" ? clientsData : searchData;
+  console.log(displayData);
+  if (isLoading || searchLoading) {
     return <h1>Loading...</h1>;
   }
-  if (error) {
+  if (error || searchError) {
     return <h1>An error occurred</h1>;
   }
   return (
     <>
       <Navbar />
-      <h3>Search for clients</h3>
-      <button>Explore Programs</button>
-      <button>Add a client</button>
-      <h4>Search for clients</h4>
+      <ToastContainer />
+      <div className="search-clients">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button onClick={handleSearch}>
+          <Search />
+        </button>
+      </div>
+      <div className="actions-row">
+        <div className="explore-programs">
+          <Link to="/programs">
+            <button>Explore Programs</button>
+          </Link>
+        </div>
+        <div className="add-client">
+          <AddClients />
+        </div>
+      </div>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -42,7 +95,7 @@ const Clients = () => {
           </tr>
         </thead>
         <tbody>
-          {clientsData?.data?.data?.map((client) => {
+          {displayData?.data?.data?.map((client) => {
             return (
               <tr key={client.client_id}>
                 <td>{client.name}</td>
@@ -51,11 +104,17 @@ const Clients = () => {
                 <td>{client.national_id}</td>
                 <td>{client.phone}</td>
                 <td>
-                  <Button>Edit</Button>
-                  <Button>Delete</Button>
+                  <UpdateClients />{" "}
+                  <span style={{ marginRight: "10px" }}></span>
+                  <DeleteClients id={client.client_id} name={client.name} />
                 </td>
                 <td>
-                  <Link to={`/clients/${client.client_id}`}>Visit Profile</Link>
+                  <Link
+                    to={`/clients/${client.client_id}`}
+                    style={{ textDecoration: "none", fontWeight: "bold" }}
+                  >
+                    <h5>Visit Profile</h5>
+                  </Link>
                 </td>
               </tr>
             );
