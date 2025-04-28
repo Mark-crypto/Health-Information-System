@@ -1,0 +1,55 @@
+CREATE TABLE clients(
+client_id int AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(50) NOT NULL UNIQUE,
+gender VARCHAR(50) NOT NULL,
+national_id int NOT NULL,
+phone VARCHAR(20) NOT NULL,
+status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+CREATE TABLE programs(
+program_id int AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+referral VARCHAR(100) NOT NULL,
+case_manager VARCHAR(100) NOT NULL,
+status ENUM('active', 'inactive') DEFAULT 'active',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+CREATE TABLE clients_in_programs(
+uip_id int AUTO_INCREMENT PRIMARY KEY,
+client_id INT,
+program_id INT,
+FOREIGN KEY (client_id) REFERENCES clients(client_id),
+FOREIGN KEY (program_id) REFERENCES programs(program_id)
+)
+
+CREATE TABLE users(
+user_id int AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100) NOT NULL UNIQUE,
+password VARCHAR(200) NOT NULL,
+role VARCHAR(20) DEFAULT 'user',
+status ENUM('active', 'inactive') DEFAULT 'active',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+CREATE TABLE request_access(
+request_id int AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100),
+phone VARCHAR(20),
+reason TEXT,
+status ENUM('pending','resolved') DEFAULT 'pending',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+-- Adding fulltext index to allow for match() against() search
+ALTER TABLE programs ADD FULLTEXT(name);
+ALTER TABLE clients ADD FULLTEXT(name);
