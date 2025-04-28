@@ -73,6 +73,8 @@ JWT_REFRESH_SECRET=your_refresh_token_secret
 
 > Make sure your MySQL server is running locally and the database exists.
 
+- I have provided SQL code to build the database in the folder **db_queries** located in **backend**
+
 ### 4. Running the Application
 
 - Start the **frontend**:
