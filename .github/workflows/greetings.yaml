@@ -1,0 +1,33 @@
+name: Greet users making a pull request 
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+permissions:
+  pull-requests: write
+
+jobs:
+  greet:
+    name: Pass greetings
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: 'Checkout repository'
+
+      - uses: peter-evans/create-or-update-comment@v4
+        name: Create comment
+        with:
+          body: |
+            Hello welcome to the repository
+            - I am glad you made a contribution :sparkles:
+            - I shall give a response as soon as possible
+            [1]: https://github.com/peter-evans/create-or-update-comment
+          reactions: "+1"
+      
+  
